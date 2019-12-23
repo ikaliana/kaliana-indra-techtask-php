@@ -58,8 +58,8 @@ class Menu {
 
     private function getAvailableIngridients($todayDate, $fresh = true) {
         return array_filter($this->ingredients, function($item) use ($todayDate,$fresh) {
-            if ($fresh) return $item->getBestBefore() >= $todayDate;
-            else return $item->getUseBy() >= $todayDate; // && $item->getBestBefore() < $todayDate;
+            $dateComparer = ($fresh) ? strtotime($item->getBestBefore()) : strtotime($item->getUseBy());
+            return $dateComparer >= strtotime($todayDate);
         });
     }
 
@@ -81,7 +81,7 @@ class Menu {
     }
 
     public function getTodayMenu($todayDate = "2019-03-10") {
-        if (!$this->isValidDate($todayDate)) throw new \Exception("'".$todayDate."' is not a valid date format!");
+        if (!$this->isValidDate($todayDate)) throw new \Exception("'".$todayDate."' is not a valid date value!");
 
         $freshIngridients = array_column($this->getAvailableIngridients($todayDate), 'title');
         $notSoFreshIngridients = array_column($this->getAvailableIngridients($todayDate,false), 'title');
